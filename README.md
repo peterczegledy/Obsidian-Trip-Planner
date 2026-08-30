@@ -1,4 +1,4 @@
-# Obsidian Trip Planner
+# Markdown Trip Planner
 
 This Obsidian plugin makes it easy to create plans for trips.
 
