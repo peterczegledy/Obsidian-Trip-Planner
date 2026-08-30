@@ -1,0 +1,108 @@
+.trip {
+    --trip-accent: var(--interactive-accent);
+    --trip-line: var(--background-modifier-border);
+    --trip-card: var(--background-secondary);
+    --trip-text-muted: var(--text-muted);
+}
+
+.trip-title {
+    font-size: 1.15em;
+    font-weight: 700;
+    font-variant: normal;
+    padding: 0.4em 0.7em;
+    margin-bottom: 0.8em;
+    color: var(--text-normal);
+    border-bottom: 1px solid var(--trip-line);
+}
+
+.trip-event {
+    display: flex;
+    position: relative;
+    padding: 0;
+    margin: 0;
+}
+
+.trip-event-side {
+    width: 5%;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.trip-event-content {
+    width: 95%;
+    padding: 0.1em 0.8em 0.8em 0.8em;
+    border-radius: 10px;
+    transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.trip-event-content h2 {
+    margin: 0;
+    font-size: 1.15em;
+    line-height: 1.4;
+    font-weight: 650;
+    color: var(--text-normal);
+}
+
+.trip-date {
+    margin-top: 0;
+    font-size: 0.75em;
+    line-height: 1.4;
+    color: var(--text-faint);
+}
+
+.trip-description {
+    margin-top: 0.45em;
+    font-size: 0.9em;
+    line-height: 1.5;
+    color: var(--text-normal);
+}
+
+.trip-timeline {
+    position: absolute;
+    width: 5px;
+    background: var(--trip-line);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.trip-dot {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    box-sizing: border-box;
+    background: var(--background-primary);
+    border: 5px solid var(--trip-accent);
+    border-radius: 50%;
+    left: 50%;
+    top: 6px;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.trip-event.start .trip-timeline {
+    top: 18px;
+    bottom: 0;
+}
+
+.trip-event.stop .trip-timeline {
+    top: 0;
+    bottom: 0;
+}
+
+.trip-event.destination .trip-timeline {
+    top: 0;
+    height: 18px;
+}
+
+.trip-event.start .trip-dot,
+.trip-event.destination .trip-dot {
+    border-color: var(--trip-accent);
+}
+
+.trip-event.stop .trip-dot {
+    border-color: var(--text-normal);
+}
+
+.trip-event:last-child {
+    margin-bottom: 0;
+}
