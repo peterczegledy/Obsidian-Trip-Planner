@@ -1,4 +1,4 @@
-name: Build and Attest
+name: Build and Release
 
 on:
   push:
@@ -28,21 +28,22 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: npm run build -- production
+        run: npm run build
 
       - name: Generate artifact attestations
         uses: actions/attest@v4
         with:
           subject-path: |
-            dist/main.js
+            main.js
             styles.css
+            manifest.json
 
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "${GITHUB_REF_NAME}" \
-            dist/main.js \
+            main.js \
             styles.css \
             manifest.json \
             --generate-notes
