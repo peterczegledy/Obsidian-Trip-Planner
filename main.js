@@ -28,7 +28,6 @@ var TripPlugin = class extends import_obsidian.Plugin {
     this.registerMarkdownCodeBlockProcessor(
       "trip",
       (source, el, ctx) => {
-        var _a, _b, _c, _d, _e, _f;
         const lines = source.split("\n");
         const main = el.createDiv({
           cls: "trip"
@@ -37,10 +36,23 @@ var TripPlugin = class extends import_obsidian.Plugin {
           (line) => line.trim().startsWith("- title:")
         );
         const title = titleLine ? titleLine.replace("- title:", "").trim() : "";
-        main.createDiv({
-          cls: "trip-title",
-          text: title
-        });
+        if (title === "") {
+          this.createError(
+            main,
+            "Missing required field: title"
+          );
+        } else {
+          main.createDiv({
+            cls: "trip-title",
+            text: title
+          });
+        }
+        const sideLine = lines.find(
+          (line) => line.trim().startsWith("- side:")
+        );
+        const sideValue = sideLine ? sideLine.replace("- side:", "").trim().toLowerCase() : "left";
+        const side = sideValue === "right" ? "right" : "left";
+        main.classList.add(`side-${side}`);
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i].trim();
           let type = "";
@@ -54,24 +66,66 @@ var TripPlugin = class extends import_obsidian.Plugin {
           if (type === "") {
             continue;
           }
-          const date = (_b = (_a = lines[i + 1]) == null ? void 0 : _a.replace("- date:", "").trim()) != null ? _b : "";
-          const location = (_d = (_c = lines[i + 2]) == null ? void 0 : _c.replace("- location:", "").trim()) != null ? _d : "";
-          const description = (_f = (_e = lines[i + 3]) == null ? void 0 : _e.replace("- description:", "").trim()) != null ? _f : "";
+          const eventLines = [];
+          for (let j = i + 1; j < lines.length; j++) {
+            const nextLine = lines[j].trim();
+            if (nextLine.startsWith("- start:") || nextLine.startsWith("- stop:") || nextLine.startsWith("- destination:")) {
+              break;
+            }
+            eventLines.push(nextLine);
+          }
+          const dateLine = eventLines.find(
+            (line2) => line2.startsWith("- date:")
+          );
+          const locationLine = eventLines.find(
+            (line2) => line2.startsWith("- location:")
+          );
+          const descriptionLine = eventLines.find(
+            (line2) => line2.startsWith("- description:")
+          );
+          const date = dateLine ? dateLine.replace("- date:", "").trim() : "";
+          const location = locationLine ? locationLine.replace("- location:", "").trim() : "";
+          const description = descriptionLine ? descriptionLine.replace("- description:", "").trim() : "";
+          const errors = [];
+          if (date === "") {
+            errors.push("Missing required field: date");
+          }
+          if (location === "") {
+            errors.push("Missing required field: location");
+          }
+          if (description === "") {
+            errors.push("Missing required field: description");
+          }
           const event = main.createDiv({
             cls: `trip-event ${type}`
           });
-          const side = event.createDiv({
+          const sideContainer = event.createDiv({
             cls: "trip-event-side"
           });
-          side.createDiv({
+          sideContainer.createDiv({
             cls: "trip-timeline"
           });
-          side.createDiv({
+          sideContainer.createDiv({
             cls: "trip-dot"
           });
           const content = event.createDiv({
             cls: "trip-event-content"
           });
+          if (errors.length > 0) {
+            const error = content.createDiv({
+              cls: "trip-error"
+            });
+            error.createEl("strong", {
+              text: `Invalid ${type} event`
+            });
+            for (const message of errors) {
+              error.createDiv({
+                cls: "trip-error-message",
+                text: message
+              });
+            }
+            continue;
+          }
           content.createEl("h2", {
             text: location
           });
@@ -86,6 +140,21 @@ var TripPlugin = class extends import_obsidian.Plugin {
         }
       }
     );
+  }
+  // =========================
+  // ERROR
+  // =========================
+  createError(parent, message) {
+    const error = parent.createDiv({
+      cls: "trip-error"
+    });
+    error.createEl("strong", {
+      text: "Trip configuration error"
+    });
+    error.createDiv({
+      cls: "trip-error-message",
+      text: message
+    });
   }
   onunload() {
   }

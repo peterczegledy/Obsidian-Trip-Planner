@@ -1,5 +1,7 @@
 # Markdown Trip Planner
 
+[![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=downloads&query=%24%5B%22markdown-trip-planner%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)](https://obsidian.md/plugins?id=markdown-trip-planner)
+
 This Obsidian plugin makes it easy to create plans for trips.
 
 ## Features
@@ -12,6 +14,7 @@ This Obsidian plugin makes it easy to create plans for trips.
 * Add descriptions to events.
 * Automatically create a visual timeline connecting the events.
 * Works with Obsidian's light and dark themes.
+* [Error handling](#error-handling)
 
 ## Usage
 
@@ -19,7 +22,7 @@ To use the plugin, create a `trip` code block.
 
 After creating the block, you can define the title. This can be done with a simple line:
 
-`title: {title}`
+`- title: {title}`
 
 After setting the title, you can define three types of stops:
 
@@ -77,6 +80,38 @@ Each value has to be indented under its corresponding stop and written in the sa
 ````
 
 ![Demo Image](image.png)
+
+### Error handling
+
+The plugin features easy-to-understand error handling, which helps you identify and correct common mistakes.   
+The plugin will warn you about any missing required fields.
+
+#### Example
+
+````markdown
+```trip
+- title: Summer Road Trip
+
+- start:
+  - date: 2026-07-15 08:30
+  - location: Budapest
+  - description: We started our journey early in the morning. Everyone was ready, the car was packed, and the weather was perfect for a long drive. After a quick breakfast, we left the city and headed towards our first stop.
+
+- stop:
+  - date: 2026-07-15 15:30
+  - location: Esztergom
+  - description: Our next stop was Esztergom, where we explored the city centre and visited the basilica. We walked along the river for a while and enjoyed the warm afternoon weather. Before leaving, we grabbed something cold to drink and planned the final part of the trip.
+    
+- stop:
+  - date: 2026-07-15 12:00
+
+- destination:
+  - date: 2026-07-15 18:00
+  - description: We finally arrived at Lake Balaton in the early evening. After such a long day of travelling, it felt great to finally slow down and relax. We found our accommodation, unpacked our things, and spent the rest of the evening walking along the lakeshore and watching the sunset.
+```
+````
+
+![Error Handling Image](errorhandling.png)
 
 ## Installation
 

@@ -10,9 +10,18 @@ export default class TripPlugin extends Plugin {
 
                 const lines = source.split("\n");
 
+                // =========================
+                // MAIN
+                // =========================
+
                 const main = el.createDiv({
                     cls: "trip"
                 });
+
+
+                // =========================
+                // TITLE
+                // =========================
 
                 const titleLine = lines.find(line =>
                     line.trim().startsWith("- title:")
@@ -22,11 +31,45 @@ export default class TripPlugin extends Plugin {
                     ? titleLine.replace("- title:", "").trim()
                     : "";
 
-                main.createDiv({
-                    cls: "trip-title",
-                    text: title
-                });
+                if (title === "") {
 
+                    this.createError(
+                        main,
+                        "Missing required field: title"
+                    );
+
+                } else {
+
+                    main.createDiv({
+                        cls: "trip-title",
+                        text: title
+                    });
+
+                }
+
+
+                // =========================
+                // SIDE
+                // =========================
+
+                const sideLine = lines.find(line =>
+                    line.trim().startsWith("- side:")
+                );
+
+                const sideValue = sideLine
+                    ? sideLine.replace("- side:", "").trim().toLowerCase()
+                    : "left";
+
+                const side = sideValue === "right"
+                    ? "right"
+                    : "left";
+
+                main.classList.add(`side-${side}`);
+
+
+                // =========================
+                // EVENTS
+                // =========================
 
                 for (let i = 0; i < lines.length; i++) {
 
@@ -51,54 +94,166 @@ export default class TripPlugin extends Plugin {
                     }
 
 
-                    const date = lines[i + 1]
-                        ?.replace("- date:", "")
-                        .trim() ?? "";
+                    // =========================
+                    // EVENT BLOKK
+                    // =========================
 
-                    const location = lines[i + 2]
-                        ?.replace("- location:", "")
-                        .trim() ?? "";
+                    const eventLines: string[] = [];
 
-                    const description = lines[i + 3]
-                        ?.replace("- description:", "")
-                        .trim() ?? "";
+                    for (
+                        let j = i + 1;
+                        j < lines.length;
+                        j++
+                    ) {
 
+                        const nextLine = lines[j].trim();
+
+                        // Következő event kezdete
+                        if (
+                            nextLine.startsWith("- start:") ||
+                            nextLine.startsWith("- stop:") ||
+                            nextLine.startsWith("- destination:")
+                        ) {
+                            break;
+                        }
+
+                        eventLines.push(nextLine);
+                    }
+
+
+                    // =========================
+                    // EVENT ADATOK
+                    // =========================
+
+                    const dateLine = eventLines.find(line =>
+                        line.startsWith("- date:")
+                    );
+
+                    const locationLine = eventLines.find(line =>
+                        line.startsWith("- location:")
+                    );
+
+                    const descriptionLine = eventLines.find(line =>
+                        line.startsWith("- description:")
+                    );
+
+
+                    const date = dateLine
+                        ? dateLine.replace("- date:", "").trim()
+                        : "";
+
+                    const location = locationLine
+                        ? locationLine.replace("- location:", "").trim()
+                        : "";
+
+                    const description = descriptionLine
+                        ? descriptionLine.replace("- description:", "").trim()
+                        : "";
+
+
+                    // =========================
+                    // HIBÁK
+                    // =========================
+
+                    const errors: string[] = [];
+
+                    if (date === "") {
+                        errors.push("Missing required field: date");
+                    }
+
+                    if (location === "") {
+                        errors.push("Missing required field: location");
+                    }
+
+                    if (description === "") {
+                        errors.push("Missing required field: description");
+                    }
+
+
+                    // =========================
+                    // EVENT
+                    // =========================
 
                     const event = main.createDiv({
                         cls: `trip-event ${type}`
                     });
 
 
-                    const side = event.createDiv({
+                    // =========================
+                    // TIMELINE
+                    // =========================
+
+                    const sideContainer = event.createDiv({
                         cls: "trip-event-side"
                     });
 
-
-                    side.createDiv({
+                    sideContainer.createDiv({
                         cls: "trip-timeline"
                     });
 
-
-                    side.createDiv({
+                    sideContainer.createDiv({
                         cls: "trip-dot"
                     });
 
+
+                    // =========================
+                    // CONTENT
+                    // =========================
 
                     const content = event.createDiv({
                         cls: "trip-event-content"
                     });
 
 
+                    // =========================
+                    // HIBA
+                    // =========================
+
+                    if (errors.length > 0) {
+
+                        const error = content.createDiv({
+                            cls: "trip-error"
+                        });
+
+                        error.createEl("strong", {
+                            text: `Invalid ${type} event`
+                        });
+
+                        for (const message of errors) {
+
+                            error.createDiv({
+                                cls: "trip-error-message",
+                                text: message
+                            });
+
+                        }
+
+                        continue;
+                    }
+
+
+                    // =========================
+                    // HELYSZÍN
+                    // =========================
+
                     content.createEl("h2", {
                         text: location
                     });
 
+
+                    // =========================
+                    // IDŐ
+                    // =========================
 
                     content.createDiv({
                         cls: "trip-date",
                         text: date
                     });
 
+
+                    // =========================
+                    // LEÍRÁS
+                    // =========================
 
                     content.createDiv({
                         cls: "trip-description",
@@ -111,6 +266,32 @@ export default class TripPlugin extends Plugin {
         );
 
     }
+
+
+    // =========================
+    // ERROR
+    // =========================
+
+    private createError(
+        parent: HTMLElement,
+        message: string
+    ) {
+
+        const error = parent.createDiv({
+            cls: "trip-error"
+        });
+
+        error.createEl("strong", {
+            text: "Trip configuration error"
+        });
+
+        error.createDiv({
+            cls: "trip-error-message",
+            text: message
+        });
+
+    }
+
 
     onunload() {
 
